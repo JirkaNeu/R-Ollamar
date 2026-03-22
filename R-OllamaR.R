@@ -3,6 +3,7 @@
 #
 
 library(ollamar)
+library(httr2)
 
 test_connection()
 list_models()
@@ -17,7 +18,15 @@ list_models()
 #my_prompt = readline()
 
 my_prompt = "What is the difference bettween up and down on a sphere. Explain in few words."
+my_prompt = "Ask me a question."
 
 txt <- generate("llama3.1", my_prompt, output = "text") |> cat()
+txt <- generate("gemma3.1b", my_prompt, output = "text") |> cat()
+
+#prepare loop
+for (i in c(1:10)) {
+  print(i)
+
+}
 
 
