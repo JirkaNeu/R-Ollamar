@@ -53,6 +53,12 @@ plus_more = "Do not summarise. Be brief and answer with less than 600 digits. Tr
 ai1trait = "Be curious about what your conversation partner thinks."
 ai2trait = "Be sceptical of what your conversation partner says."
 
+#--> try german:
+#my_prompt = "Schlage mehr als drei Themen vor über die wir uns unterhalten können."
+#plus_more = "Antworte auf Deutsch. Erstelle keine Zusammenfassung. Fasse Dich kurz mit weniger als 600 Zeichen. Gehe auf genannte Ideen ein. Versuche Dich locker auszudrücken. Gerne kannst Du das Thema wechseln. Nutze einfachen Text, keine emojis, kein Formatierungen."
+#ai1trait = "Sei neugierig was Dein Gesprächspartner denkt."
+#ai2trait = "Sei skeptisch gegenüber dem was Dein Gesprächspartner sagt."
+
 
 chat_log = c(paste("\na1-one:", locModel_1), paste("ai-2:", locModel_2), "\n+ + + + +\n", my_prompt, "\n+ + + + +\n")
 
