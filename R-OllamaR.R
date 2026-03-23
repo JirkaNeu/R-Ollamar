@@ -42,30 +42,28 @@ check = generate("mistral:7b", "Who made you?", output = "text")
 locModel_1 = "mistral:7b"
 locModel_2 = "qwen3-vl:4b"
 
-
+#-------------------------------------------------------------------------------------#
 #my_prompt = "What is the difference bettween up and down on a sphere?"
 #my_prompt = "Ask me a new question."
 my_prompt = "Suggest more than three topics and ask which of them is interessting to talk about."
-my_prompt = "Schlage mehr als drei Themen vor über die wir uns unterhalten können."
 #+++++++
 #plus_more = "Try beeing brief. Do not summarise. Try to lead a conversation. Comment on mentioned ideas. Feel free to change the topic."
-#plus_more = "Do not summarise. Be brief and answer with less than 600 digits. Try to conversate in a casual manner. Feel free to change the topic. Provide plain text, no emojis, no formating signs."
-plus_more = "Antworte auf Deutsch. Erstelle keine Zusammenfassung. Fasse Dich kurz mit weniger als 600 Zeichen. Gehe auf genannte Ideen ein. Versuche Dich locker auszudrücken. Gerne kannst Du das Thema wechseln. Nutze einfachen Text, keine emojis, kein Formatierungen."
+plus_more = "Do not summarise. Keep it brief and answer with few lines. Try to conversate in a casual manner. Provide plain text, no emojis, no formating signs."
 #+++++++ 
-#ai1trait = "Be curious about what your conversation partner thinks."
-#ai2trait = "Be sceptical of what your conversation partner says."
+ai1trait = "Keep it brief. Try to explore deeper what your conversation partner thinks."
+ai2trait = "Feel free to change the topic."
+#-------------------------------------------------------------------------------------#
 
-ai1trait = "Sei neugierig was Dein Gesprächspartner denkt."
-ai2trait = "Sei skeptisch gegenüber dem was Dein Gesprächspartner sagt."
+#--> start chat_log
+chat_log = c(paste("\nModel one:", locModel_1, "(a1-one)"), paste("Model two:", locModel_2, "(ai-2)"), "----------")
+chat_log = append(chat_log, c(paste("\na1-one:", ai1trait), paste("ai-2:", ai2trait), paste("\nboth:", plus_more), "\n\n+ + + + +\n", paste("Today's topic:", my_prompt), "\n+ + + + +\n"))
 
-chat_log = c(paste("\na1-one:", locModel_1), paste("ai-2:", locModel_2), "\n+ + + + +\n", my_prompt, "\n+ + + + +\n")
 
-
+#--> start conversation
 ai1_says <- generate(locModel_1, my_prompt, output = "text") |> print()
 chat_log = append(chat_log, paste("\n>>>>> a1-one says:\n", ai1_says))
 
-
-for (i in c(1:10)) {
+for (i in c(1:15)) {
   ai2_says = generate(locModel_2, paste(ai1_says, ai2trait, plus_more), output = "text")
   chat_log = append(chat_log, paste("\n>>>>> ai-2 says:\n", ai2_says, "\n"))
   
@@ -74,7 +72,8 @@ for (i in c(1:10)) {
 }
 
 
-filename = format(Sys.time(), "ai_chat_%y%m%d_%H%M.txt")
+#--> make log_file
+filename = format(Sys.time(), "01_ai_chat_%y%m%d_%H%M.txt")
 chat_log = paste(chat_log, collapse = "\n")
 chat_log = paste("\n", chat_log, "\n\n\n+ + + + +\n\neof\n")
 
