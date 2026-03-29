@@ -42,6 +42,7 @@ check = generate("mistral:7b", "Who made you?", output = "text")
 locModel_1 = "mistral:7b"
 locModel_2 = "qwen3-vl:4b"
 
+
 #-------------------------------------------------------------------------------------#
 #my_prompt = "What is the difference bettween up and down on a sphere?"
 #my_prompt = "Ask me a new question."

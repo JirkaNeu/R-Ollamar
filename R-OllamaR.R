@@ -42,6 +42,25 @@ check = generate("mistral:7b", "Who made you?", output = "text")
 locModel_1 = "mistral:7b"
 locModel_2 = "qwen3-vl:4b"
 
+
+
+
+
+messages <- create_messages(
+  create_message("Begin all your sentences with Good Grief..!!", role = "system"),
+  create_message("Who made you?", role = "user")
+)
+
+
+chat(locModel_1, messages, output = "text")  # print the formatted output
+messages = append_message("All right. What's next?", role = "user", messages)
+
+chat(locModel_1, messages[[3]], output = "text")  # print the formatted output
+
+
+
+
+
 #-------------------------------------------------------------------------------------#
 #my_prompt = "What is the difference bettween up and down on a sphere?"
 #my_prompt = "Ask me a new question."
@@ -63,7 +82,7 @@ chat_log = append(chat_log, c(paste("\na1-one:", ai1trait), paste("ai-2:", ai2tr
 ai1_says <- generate(locModel_1, my_prompt, output = "text") |> print()
 chat_log = append(chat_log, paste("\n>>>>> a1-one says:\n", ai1_says))
 
-for (i in c(1:15)) {
+for (i in c(1:5)) {
   ai2_says = generate(locModel_2, paste(ai1_says, ai2trait, plus_more), output = "text")
   chat_log = append(chat_log, paste("\n>>>>> ai-2 says:\n", ai2_says, "\n"))
   
@@ -73,10 +92,8 @@ for (i in c(1:15)) {
 
 
 #--> make log_file
-filename = format(Sys.time(), "01_ai_chat_%y%m%d_%H%M.txt")
+filename = format(Sys.time(), "ai_chat_%y%m%d_%H%M.txt")
 chat_log = paste(chat_log, collapse = "\n")
 chat_log = paste("\n", chat_log, "\n\n\n+ + + + +\n\neof\n")
 
 write.table(chat_log, file = filename, row.names = F, col.names = F)
-
-
