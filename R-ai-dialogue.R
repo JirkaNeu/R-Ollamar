@@ -67,7 +67,7 @@ chat_log = append(chat_log, c(paste("\na1-one:", ai1trait), paste("ai-2:", ai2tr
 
 
 #--> start conversation
-ai1_says <- generate(locModel_1, my_prompt, output = "text") |> print()
+ai1_says = generate(locModel_1, my_prompt, output = "text") |> print()
 chat_log = append(chat_log, paste("\n>>>>> a1-one says:\n", ai1_says))
 
 for (i in c(1:10)) {

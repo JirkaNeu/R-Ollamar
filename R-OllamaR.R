@@ -45,19 +45,23 @@ locModel_2 = "qwen3-vl:4b"
 
 
 
-
 messages <- create_messages(
-  create_message("Begin all your sentences with Good Grief..!!", role = "system"),
-  create_message("Who made you?", role = "user")
+  create_message("Begin with 'Here am AI.' and then continue generating.", role = "system"),
+  create_message("Who made you? Introduce yourself. Make suggestions what to talk about.", role = "user")
 )
 
-
-chat(locModel_1, messages, output = "text")  # print the formatted output
-messages = append_message("All right. What's next?", role = "user", messages)
-
-chat(locModel_1, messages[[3]], output = "text")  # print the formatted output
+ai_resp = chat(locModel_1, messages, output = "text")
+messages = append_message(ai_resp, role = "assistant", messages)
 
 
+
+
+my_prompt = "No need to apologize, thanks for clarifing."
+messages = append_message(my_prompt, role = "user", messages)
+
+my_resp = chat(locModel_1, messages, output = "text")
+my_resp
+messages = append_message(my_resp, role = "assistant", messages)
 
 
 
@@ -79,7 +83,7 @@ chat_log = append(chat_log, c(paste("\na1-one:", ai1trait), paste("ai-2:", ai2tr
 
 
 #--> start conversation
-ai1_says <- generate(locModel_1, my_prompt, output = "text") |> print()
+ai1_says = generate(locModel_1, my_prompt, output = "text") |> print()
 chat_log = append(chat_log, paste("\n>>>>> a1-one says:\n", ai1_says))
 
 for (i in c(1:5)) {
