@@ -43,8 +43,6 @@ locModel_1 = "mistral:7b"
 locModel_2 = "qwen3-vl:4b"
 
 
-
-
 messages <- create_messages(
   create_message("Begin with 'Here am AI.' and then continue generating.", role = "system"),
   create_message("Who made you? Introduce yourself. Make suggestions what to talk about.", role = "user")
@@ -54,9 +52,7 @@ ai_resp = chat(locModel_1, messages, output = "text")
 messages = append_message(ai_resp, role = "assistant", messages)
 
 
-
-
-my_prompt = "No need to apologize, thanks for clarifing."
+my_prompt = "Cool guy, thanks for talking."
 messages = append_message(my_prompt, role = "user", messages)
 
 my_resp = chat(locModel_1, messages, output = "text")
@@ -66,11 +62,8 @@ messages = append_message(my_resp, role = "assistant", messages)
 
 
 #-------------------------------------------------------------------------------------#
-#my_prompt = "What is the difference bettween up and down on a sphere?"
-#my_prompt = "Ask me a new question."
 my_prompt = "Suggest more than three topics and ask which of them is interessting to talk about."
 #+++++++
-#plus_more = "Try beeing brief. Do not summarise. Try to lead a conversation. Comment on mentioned ideas. Feel free to change the topic."
 plus_more = "Do not summarise. Keep it brief and answer with few lines. Try to conversate in a casual manner. Provide plain text, no emojis, no formating signs."
 #+++++++ 
 ai1trait = "Keep it brief. Try to explore deeper what your conversation partner thinks."
