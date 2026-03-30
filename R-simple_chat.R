@@ -46,7 +46,7 @@ locModel_2 = "qwen3-vl:4b"
 messages <- create_messages(
   #create_message("Begin with 'Here am AI.' Who made you?", role = "system"),
   create_message("Do not summarise. Keep it brief and conversate in a casual manner.", role = "system"),
-  create_message("Make suggestions what to talk about.", role = "user")
+  create_message("Start with a couple of suggestions what to talk about.", role = "user")
 )
 
 ai_resp = chat(locModel_1, messages, output = "text")
@@ -62,42 +62,8 @@ for (i in c(1:5)) {
   messages[[length(messages)]][2] |> unlist() |> cat()
 }
 
-messages = "The conversation is over. Say good bye and ask no further questions" |> append_message(role = "user", messages)
+messages = "The conversation is over. Say good bye and ask no further questions." |> append_message(role = "user", messages)
 messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
 messages[[length(messages)]][2] |> unlist() |> cat()
 
 
-
-#-------------------------------------------------------------------------------------#
-my_prompt = "Suggest more than three topics and ask which of them is interessting to talk about."
-#+++++++
-plus_more = "Do not summarise. Keep it brief and answer with few lines. Try to conversate in a casual manner. Provide plain text, no emojis, no formating signs."
-#+++++++ 
-ai1trait = "Keep it brief. Try to explore deeper what your conversation partner thinks."
-ai2trait = "Feel free to change the topic."
-#-------------------------------------------------------------------------------------#
-
-#--> start chat_log
-chat_log = c(paste("\nModel one:", locModel_1, "(a1-one)"), paste("Model two:", locModel_2, "(ai-2)"), "----------")
-chat_log = append(chat_log, c(paste("\na1-one:", ai1trait), paste("ai-2:", ai2trait), paste("\nboth:", plus_more), "\n\n+ + + + +\n", paste("Today's topic:", my_prompt), "\n+ + + + +\n"))
-
-
-#--> start conversation
-ai1_says = generate(locModel_1, my_prompt, output = "text") |> print()
-chat_log = append(chat_log, paste("\n>>>>> a1-one says:\n", ai1_says))
-
-for (i in c(1:5)) {
-  ai2_says = generate(locModel_2, paste(ai1_says, ai2trait, plus_more), output = "text")
-  chat_log = append(chat_log, paste("\n>>>>> ai-2 says:\n", ai2_says, "\n"))
-  
-  ai1_says = generate(locModel_1, paste(ai2_says, ai1trait, plus_more), output = "text")
-  chat_log = append(chat_log, paste("\n>>>>> a1-one says:\n", ai1_says))
-}
-
-
-#--> make log_file
-filename = format(Sys.time(), "ai_chat_%y%m%d_%H%M.txt")
-chat_log = paste(chat_log, collapse = "\n")
-chat_log = paste("\n", chat_log, "\n\n\n+ + + + +\n\neof\n")
-
-write.table(chat_log, file = filename, row.names = F, col.names = F)
