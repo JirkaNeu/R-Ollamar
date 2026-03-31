@@ -58,5 +58,6 @@ if (is.null(user_input)){
   user_input = "Nothing entered by user..."
   stop_it = T
   }
-print(user_input)
+cat(paste(user_input, "\n\n"))
+
 
