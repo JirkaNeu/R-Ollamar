@@ -80,7 +80,7 @@ for (i in c(1:10)) {
 
 
 #--> make log_file
-filename = format(Sys.time(), "ai_chat_%y%m%d_%H%M.txt")
+filename = format(Sys.time(), "ai_dialogue_%y%m%d_%H%M.txt")
 chat_log = paste(chat_log, collapse = "\n")
 chat_log = paste("\n", chat_log, "\n\n\n+ + + + +\n\neof\n")
 
