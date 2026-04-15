@@ -1,25 +1,43 @@
+library(rstudioapi)
 library(ollamar)
+#library(httr2)
 
+fun_locate_data_folder = function(){
+  this_file = rstudioapi::getActiveDocumentContext()$path
+  path = box::file()
+  check_path = unlist(strsplit(this_file, split = "/"))
+  check_path = paste0(check_path[1:length(check_path)-1], collapse="/")
+  
+  if (check_path != path){
+    warning("There might be issues related to the path of files.", call. = TRUE, immediate. = FALSE, domain = NULL)
+  }else{
+    setwd(file.path(path, "data"))
+    #allfiles = dir()
+    #print(allfiles)
+  }  
+}
+
+fun_locate_data_folder()
 test_connection()
 list_models()
 
-#name   size parameter_size quantization_level            modified
-#1      gemma3:1b 815 MB        999.89M             Q4_K_M 2026-02-28T03:35:03
-#2      llama3.1:latest 4.9 GB   
-
+#name        size    parameter_size
+#gemma4:e2b  7.2 GB  5.1B            
 
 vision_modell = "gemma4:e2b"
-img_file = "a_picture.jpg"
 
 
-#generate(vision_modell, "Tomorrow is a...", output = "text")
+#------> remake a pie plot shown in img_file by creating R-code
+img_file = "../a_pie_plot_src.png"
 
-generate(vision_modell, "What is in the image?",
-         images = img_file, output = 'text')
+plot_rmk = generate(vision_modell, "Provide Code written in R for data science which creates the same plot as shown in the image. Provide R-code only, no annotations or explainations.",
+                    images = img_file, output = 'text')
 
-messages <- create_message("What is in the image?", images = "image.png")
+cat(plot_rmk)
 
-#llama3.1
-
-
+##### result, output (a2_pie_plot_rmk.png)
+# data <- c(40, 25, 20, 15)
+# labels <- c("drinks", "fruits", "sweets", "cheese")
+# colors <- c("cyan", "green", "red", "blueviolet")
+# pie(data, labels = labels, col = colors, main = "sold items last year")
 
