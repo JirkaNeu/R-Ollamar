@@ -48,7 +48,7 @@ initial_prompt = "Say hi and start with a couple of suggestions what to talk abo
 #--> start chat_log
 chat_log = c(paste("\nLLM:", locModel_1, "\n", "\nSystem Prompt:", system_prompt, paste("\nInitial Prompt:", initial_prompt)), "\n----------")
 
-  
+
 messages <- create_messages(
   create_message(system_prompt, role = "system"),
   create_message(initial_prompt, role = "user")
@@ -79,11 +79,11 @@ messages[[length(messages)]][2] |> unlist() |> cat()
 chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 
 
-#--> make log_file
+#--> create log_file
 filename = format(Sys.time(), "ai_chat_%y%m%d_%H%M.txt")
 chat_log = paste(chat_log, collapse = "\n")
 chat_log = paste("\n", chat_log, "\n\n+ + + + +\n\neof\n")
 
 write.table(chat_log, file = filename, row.names = F, col.names = F)
-
+print("The End")
 

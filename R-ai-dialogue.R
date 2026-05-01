@@ -45,11 +45,11 @@ locModel_2 = "qwen3-vl:4b"
 
 #-------------------------------------------------------------------------------------#
 #my_prompt = "What is the difference bettween up and down on a sphere?"
-#my_prompt = "Ask me a new question."
+#my_prompt = "Ask me a question."
 my_prompt = "Suggest more than three topics and ask which of them is interessting to talk about."
 #+++++++
 #plus_more = "Try beeing brief. Do not summarise. Try to lead a conversation. Comment on mentioned ideas. Feel free to change the topic."
-plus_more = "Do not summarise. Be brief and answer with less than 600 digits. Try to conversate in a casual manner. Provide plain text, no emojis, no formating signs."
+plus_more = "Do not summarise. Keep it brief and answer with less than 600 digits. Try to conversate in a casual manner. Provide plain text, no emojis, no formating signs."
 #+++++++ 
 ai1trait = "Try to explore deeper what your conversation partner thinks about the topic."
 ai2trait = "Feel free to change the topic."
