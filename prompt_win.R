@@ -1,8 +1,8 @@
 library(tcltk)
 
-#--------------------------------#
-#--> With the help of Le Chat <--#
-#--------------------------------#
+#------------------------------------#
+#--> special thanks to Mistral AI <--#
+#------------------------------------#
 
 # Create a function to show a pop-up input dialog
 get_user_input <- function() {
@@ -54,6 +54,7 @@ get_user_input <- function() {
 
 # Call the function to get user input
 user_input <- get_user_input()
+
 if (is.null(user_input)){
   user_input = "Nothing entered by user..."
   stop_it = T
