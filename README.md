@@ -15,5 +15,6 @@ So far:
 * R-read_image.R -> a basic try to generate r code remaking a pie plot (a_pie_plot_src.png) by a local vision model - result: a2_pie_plot_rmk.png
 
 under construction:
+* function calling
 * R-ai_moderated_aiChat.R -> a third ai trying to guide a conversation of two other ais...
 * trying local ais with everything else...
