@@ -4,7 +4,7 @@ library(rstudioapi)
 library(ollamar)
 library(rvest)
 library(httr)
-#library(httr2)
+library(httr2)
 
 
 
@@ -26,12 +26,12 @@ fun_locate_data_folder = function(){
 }
 
 
-
-
 web_search = function(search_term = ""){
   #------------------------------------#
   #--> special thanks to Mistral AI <--#
   #------------------------------------#
+  
+  search_term = as.character(search_term)
   
   # Define the search query
   query <- search_term
@@ -76,6 +76,7 @@ web_search = function(search_term = ""){
 
 
 
+# script ------------------------------------------------------------------
 
 fun_locate_data_folder()
 test_connection()
@@ -110,6 +111,7 @@ tool1 <- list(type = "function",
 
 
 
+# start chat --------------------------------------------------------------
 
 
 locModel_1 = "llama3.1"
@@ -135,14 +137,16 @@ messages[[length(messages)]][2] |> unlist() |> cat(); print("")
 chat_log = append(chat_log, c(paste("\n>>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 
 
+# chat loop ---------------------------------------------------------------
+
 stop_it = F
-for (i in c(1:15)) {
+for (i in c(1:2)) {
   source("../prompt_win.R") #--> user_input
   if(stop_it == T || i >= 50){break}
   messages = user_input |> append_message(role = "user", messages)
   chat_log = append(chat_log, c(paste(">>> User:", user_input, "\n")))
   
-  messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
+  messages = chat(locModel_1, messages, tools = list(tool1), output = "tools") |> append_message(role = "assistant", messages)
   messages[[length(messages)]][2] |> unlist() |> cat(); print("")
   chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 }
@@ -154,7 +158,9 @@ messages[[length(messages)]][2] |> unlist() |> cat()
 chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 
 
-#--> create log_file
+
+# create log file ---------------------------------------------------------
+
 filename = format(Sys.time(), "ai_chat_%y%m%d_%H%M.txt")
 chat_log = paste(chat_log, collapse = "\n")
 chat_log = paste("\n", chat_log, "\n\n+ + + + +\n\neof\n")
