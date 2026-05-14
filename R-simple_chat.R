@@ -4,25 +4,35 @@
 
 library(rstudioapi)
 library(ollamar)
+library(tcltk)
 
 
-fun_locate_data_folder = function(){
-  this_file = rstudioapi::getActiveDocumentContext()$path
-  path = box::file()
-  check_path = unlist(strsplit(this_file, split = "/"))
-  check_path = paste0(check_path[1:length(check_path)-1], collapse="/")
-  
-  if (check_path != path){
-    warning("There might be issues related to the path of files.", call. = TRUE, immediate. = FALSE, domain = NULL)
-  }else{
-    setwd(file.path(path, "data"))
-    #allfiles = dir()
-    #print(allfiles)
-  }  
+# locate folder -----------------------------------------------------------
+
+
+this_file = rstudioapi::getActiveDocumentContext()$path
+path = box::file()
+check_path = unlist(strsplit(this_file, split = "/"))
+check_path = paste0(check_path[1:length(check_path)-1], collapse="/")
+
+if (check_path != path){
+  warning("There might be issues related to the path of files.", call. = TRUE, immediate. = FALSE, domain = NULL)
+}else{
+  setwd(file.path(path, "data"))
+  #allfiles = dir()
+  #print(allfiles)
 }
 
 
-fun_locate_data_folder()
+# functions ---------------------------------------------------------------
+
+source("../functions/fun_prompt_win.R")
+
+
+
+# script ------------------------------------------------------------------
+
+
 test_connection()
 list_models()
 
@@ -56,26 +66,40 @@ messages <- create_messages(
 
 ai_resp = chat(locModel_1, messages, output = "text")
 messages = append_message(ai_resp, role = "assistant", messages)
-messages[[length(messages)]][2] |> unlist() |> cat(); print("")
+messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
 chat_log = append(chat_log, c(paste("\n>>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 
 
+
+# chat loop ---------------------------------------------------------------
+
+
 stop_it = F
-for (i in c(1:15)) {
-  source("../prompt_win.R") #--> user_input
-  if(stop_it == T || i >= 50){break}
+i = 0 #safety stop
+
+while(TRUE) {
+  i = i + 1
+  
+  user_input = get_user_input()
+  if (is.null(user_input) || user_input == ""){
+    user_input = "Nothing entered by user..."
+    stop_it = T
+  }
+  
+  if(stop_it == T || i >= 15){break}
   messages = user_input |> append_message(role = "user", messages)
+  messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
   chat_log = append(chat_log, c(paste(">>> User:", user_input, "\n")))
   
   messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
-  messages[[length(messages)]][2] |> unlist() |> cat(); print("")
+  messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
   chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 }
 
 
 messages = "The conversation is over. Say good bye and ask no further questions." |> append_message(role = "user", messages)
 messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
-messages[[length(messages)]][2] |> unlist() |> cat()
+messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
 chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 
 

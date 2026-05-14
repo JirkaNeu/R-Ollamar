@@ -5,80 +5,34 @@ library(ollamar)
 library(rvest)
 library(httr)
 library(httr2)
+library(tcltk)
 
+
+# locate folder -----------------------------------------------------------
+
+this_file = rstudioapi::getActiveDocumentContext()$path
+path = box::file()
+check_path = unlist(strsplit(this_file, split = "/"))
+check_path = paste0(check_path[1:length(check_path)-1], collapse="/")
+
+if (check_path != path){
+  warning("There might be issues related to the path...", call. = TRUE, immediate. = FALSE, domain = NULL)
+}else{
+  setwd(file.path(path, "data"))
+  #allfiles = dir()
+  #print(allfiles)
+}
 
 
 # functions ---------------------------------------------------------------
 
-fun_locate_data_folder = function(){
-  this_file = rstudioapi::getActiveDocumentContext()$path
-  path = box::file()
-  check_path = unlist(strsplit(this_file, split = "/"))
-  check_path = paste0(check_path[1:length(check_path)-1], collapse="/")
-  
-  if (check_path != path){
-    warning("There might be issues related to the path of files.", call. = TRUE, immediate. = FALSE, domain = NULL)
-  }else{
-    setwd(file.path(path, "data"))
-    #allfiles = dir()
-    #print(allfiles)
-  }  
-}
-
-
-web_search = function(search_term = ""){
-  #------------------------------------#
-  #--> special thanks to Mistral AI <--#
-  #------------------------------------#
-  
-  search_term = as.character(search_term)
-  
-  # Define the search query
-  query <- search_term
-  url <- paste0("https://html.duckduckgo.com/html/?q=", URLencode(query))
-  
-  # Send a GET request with a user-agent header
-  response <- GET(
-    url,
-    #user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
-    user_agent("Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36")
-  )
-
-  # Parse the HTML content
-  html_content <- read_html(response)
-  
-  # Extract titles
-  titles <- html_content |>
-    html_nodes(".result__title a") |>
-    html_text()
-  
-  # Extract links
-  links <- html_content |>
-    html_nodes(".result__title a") |>
-    html_attr("href")
-  
-  # Extract teasers (snippets)
-  teasers <- html_content |>
-    html_nodes(".result__snippet") |>
-    html_text()
-  
-  # Combine into a data frame
-  results <- data.frame(
-    Title = titles[1:5],
-    Link = links[1:5],
-    Teaser = teasers[1:5]
-  )
-  
-  # Print the results
-  # print(results)
-  return(results)
-}
+source("../functions/fun_prompt_win.R")
+source("../functions/fun_web_search.R")
 
 
 
 # script ------------------------------------------------------------------
 
-fun_locate_data_folder()
 test_connection()
 list_models()
 
@@ -95,20 +49,21 @@ check = generate("mistral:7b", "Who made you?", output = "text")
 
 
 
-# web search tool ---------------------------------------------------------
-tool1 <- list(type = "function",
-              "function" = list(
-                name = "web_search",  # function name
-                description = "a web search with duckduckgo",
-                parameters = list(
-                  type = "object",
-                  required = list("search_term"),  # function parameters
-                  properties = list(
-                    search_term = list(class = "character", description = "the term to search with duckduckgo")))
-              )
-)
+# define tools ------------------------------------------------------------
 
+tool_web_search <- list(type = "function",
+                        "function" = list(
+                          name = "web_search",  # function name
+                          description = "Search the web for information. Use this ONLY if the user explicitly asks to 'search for', 'look up', or 'find information about' something.",
+                          parameters = list(
+                            type = "object",
+                            required = list("search_term"),  # function parameters
+                            properties = list(
+                              search_term = list(class = "character", description = "the term to search the web")))
+                          )
+                        )
 
+tools_jne = list(tool_web_search)
 
 
 # start chat --------------------------------------------------------------
@@ -119,14 +74,14 @@ locModel_1 = "llama3.1"
 #locModel_2 = "qwen3-vl:4b"
 
 
-system_prompt = "Do not summarise. Keep it brief and conversate in a casual manner. Just plain text. No Emojis."
+system_prompt = "Only use tools when explicitly asked or when the user's intent is unambiguous. Do not summarise. Keep it brief and conversate in a casual manner. Just plain text. No Emojis."
 initial_prompt = "Say hi and ask what you can help with."
 
 #--> start chat_log
 chat_log = c(paste("\nLLM:", locModel_1, "\n", "\nSystem Prompt:", system_prompt, paste("\nInitial Prompt:", initial_prompt)), "\n----------")
 
 
-messages <- create_messages(
+messages = create_messages(
   create_message(system_prompt, role = "system"),
   create_message(initial_prompt, role = "user")
 )
@@ -137,16 +92,67 @@ messages[[length(messages)]][2] |> unlist() |> cat(); print("")
 chat_log = append(chat_log, c(paste("\n>>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 
 
+
+
+# try web search ----------------------------------------------------------
+
+user_input = get_user_input()
+if (is.null(user_input) || user_input == ""){user_input = "Nothing entered by user..."}
+
+messages = user_input |> append_message(role = "user", messages)
+chat_log = append(chat_log, c(paste(">>> User:", user_input, "\n")))
+
+
+ai_resp = chat(locModel_1, messages, tools = tools_jne, output = "tools")
+
+
+# check if tool calling is ok
+if (length(ai_resp) > 0 && !is.null(ai_resp) && ai_resp != "") {
+  tool_call <- ai_resp[[1]]
+  cat(sprintf("Calling tool: %s with arguments: %s\n",
+              tool_call$name, toString(tool_call$arguments)))
+  tool_result <- do.call(tool_call$name, tool_call$arguments)
+  cat("Tool result:", tool_result, "\n")
+  messages <- append_message(paste("Tool result:", tool_result), "assistant", messages)
+} else {
+  print("nichts raus gekommen")
+}
+
+
+
+messages = append_message(ai_resp, role = "assistant", messages)
+
+messages[[length(messages)]][2] |> unlist() |> cat(); print("")
+chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
+
+
+stop("hang on")
+
+
+
+
+
+
 # chat loop ---------------------------------------------------------------
 
 stop_it = F
-for (i in c(1:2)) {
-  source("../prompt_win.R") #--> user_input
+i = 0 #safety stop
+
+while(TRUE) {
+  i = i + 1
+  
+  user_input = get_user_input()
+  if (is.null(user_input) || user_input == ""){
+    user_input = "Nothing entered by user..."
+    stop_it = T
+  }
+  
   if(stop_it == T || i >= 50){break}
   messages = user_input |> append_message(role = "user", messages)
+  messages[[length(messages)]][2] |> unlist() |> cat(); print("\n\n\n")
   chat_log = append(chat_log, c(paste(">>> User:", user_input, "\n")))
   
-  messages = chat(locModel_1, messages, tools = list(tool1), output = "tools") |> append_message(role = "assistant", messages)
+  messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
   messages[[length(messages)]][2] |> unlist() |> cat(); print("")
   chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 }
@@ -167,4 +173,5 @@ chat_log = paste("\n", chat_log, "\n\n+ + + + +\n\neof\n")
 
 write.table(chat_log, file = filename, row.names = F, col.names = F)
 print("The End")
+
 

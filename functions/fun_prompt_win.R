@@ -1,4 +1,4 @@
-library(tcltk)
+require(tcltk)
 
 #------------------------------------#
 #--> special thanks to Mistral AI <--#
@@ -51,14 +51,4 @@ get_user_input <- function() {
   # Return the user input
   return(input_value)
 }
-
-# Call the function to get user input
-user_input <- get_user_input()
-
-if (is.null(user_input)){
-  user_input = "Nothing entered by user..."
-  stop_it = T
-  }
-cat(paste(user_input, "\n\n"))
-
 
