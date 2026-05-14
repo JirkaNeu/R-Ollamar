@@ -17,7 +17,7 @@ check_path = unlist(strsplit(this_file, split = "/"))
 check_path = paste0(check_path[1:length(check_path)-1], collapse="/")
 
 if (check_path != path){
-  warning("There might be issues related to the path of files.", call. = TRUE, immediate. = FALSE, domain = NULL)
+  warning("There might be issues related to the path...", call. = TRUE, immediate. = FALSE, domain = NULL)
 }else{
   setwd(file.path(path, "data"))
   #allfiles = dir()
@@ -61,7 +61,7 @@ messages <- create_messages(
 
 ai_resp = chat(locModel_1, messages, output = "text")
 messages = append_message(ai_resp, role = "assistant", messages)
-messages[[length(messages)]][2] |> unlist() |> cat()
+messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
 
 stop_it = F
 for (i in c(1:5)) {
@@ -75,12 +75,12 @@ for (i in c(1:5)) {
   if(stop_it == T || i >= 50){break}
   messages = user_input |> append_message(role = "user", messages)
   messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
-  messages[[length(messages)]][2] |> unlist() |> cat()
+  messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
 }
 
 messages = "The conversation is over. Say good bye and ask no further questions" |> append_message(role = "user", messages)
 messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
-messages[[length(messages)]][2] |> unlist() |> cat()
+messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
 
 
 

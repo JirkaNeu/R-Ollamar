@@ -13,7 +13,7 @@ fun_locate_data_folder = function(){
   check_path = paste0(check_path[1:length(check_path)-1], collapse="/")
   
   if (check_path != path){
-    warning("There might be issues related to the path of files.", call. = TRUE, immediate. = FALSE, domain = NULL)
+    warning("There might be issues related to the path...", call. = TRUE, immediate. = FALSE, domain = NULL)
   }else{
     setwd(file.path(path, "data"))
     #allfiles = dir()

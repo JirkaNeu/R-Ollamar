@@ -88,7 +88,7 @@ messages = create_messages(
 
 ai_resp = chat(locModel_1, messages, output = "text")
 messages = append_message(ai_resp, role = "assistant", messages)
-messages[[length(messages)]][2] |> unlist() |> cat(); print("")
+messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
 chat_log = append(chat_log, c(paste("\n>>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 
 
@@ -122,7 +122,7 @@ if (length(ai_resp) > 0 && !is.null(ai_resp) && ai_resp != "") {
 
 messages = append_message(ai_resp, role = "assistant", messages)
 
-messages[[length(messages)]][2] |> unlist() |> cat(); print("")
+messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
 chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 
 
@@ -149,18 +149,18 @@ while(TRUE) {
   
   if(stop_it == T || i >= 50){break}
   messages = user_input |> append_message(role = "user", messages)
-  messages[[length(messages)]][2] |> unlist() |> cat(); print("\n\n\n")
+  messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
   chat_log = append(chat_log, c(paste(">>> User:", user_input, "\n")))
   
   messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
-  messages[[length(messages)]][2] |> unlist() |> cat(); print("")
+  messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
   chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 }
 
 
 messages = "The conversation is over. Say good bye and ask no further questions." |> append_message(role = "user", messages)
 messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
-messages[[length(messages)]][2] |> unlist() |> cat()
+messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
 chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 
 

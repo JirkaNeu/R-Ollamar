@@ -7,23 +7,27 @@ library(ollamar)
 #library(httr2)
 
 
-fun_locate_data_folder = function(){
-  this_file = rstudioapi::getActiveDocumentContext()$path
-  path = box::file()
-  check_path = unlist(strsplit(this_file, split = "/"))
-  check_path = paste0(check_path[1:length(check_path)-1], collapse="/")
-  
-  if (check_path != path){
-    warning("There might be issues related to the path of files.", call. = TRUE, immediate. = FALSE, domain = NULL)
-  }else{
-    setwd(file.path(path, "data"))
-    #allfiles = dir()
-    #print(allfiles)
-  }  
+# locate folder -----------------------------------------------------------
+
+this_file = rstudioapi::getActiveDocumentContext()$path
+path = box::file()
+check_path = unlist(strsplit(this_file, split = "/"))
+check_path = paste0(check_path[1:length(check_path)-1], collapse="/")
+
+if (check_path != path){
+  warning("There might be issues related to the path...", call. = TRUE, immediate. = FALSE, domain = NULL)
+}else{
+  setwd(file.path(path, "data"))
+  #allfiles = dir()
+  #print(allfiles)
 }
 
 
-fun_locate_data_folder()
+
+# script ------------------------------------------------------------------
+
+
+
 test_connection()
 list_models()
 
