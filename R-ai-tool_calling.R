@@ -28,7 +28,18 @@ if (check_path != path){
 
 source("../functions/fun_prompt_win.R")
 source("../functions/fun_web_search.R")
+#source("../functions/fun_take_notes.R") #--> under construction
 
+fun_tool_key_words = function(user_input) {
+  search_keywords = c("search for", "look up", "find information about", "google", "search the web", "in the internet", "in the web", "suche nach", "suche im internet", "suche im netz", "finde im netz", "suche im web", "im internet", "im web", "im netz")
+  tolower_user_input = tolower(user_input) |> trimws()
+  for (keyword in search_keywords) {
+    if (grepl(keyword, tolower_user_input)) {
+      return(TRUE)
+    }
+  }
+  return(FALSE)
+}
 
 
 # script ------------------------------------------------------------------
@@ -54,7 +65,7 @@ check = generate("mistral:7b", "Who made you?", output = "text")
 tool_web_search <- list(type = "function",
                         "function" = list(
                           name = "web_search",  # function name
-                          description = "Search the web for information. Use this ONLY if the user explicitly asks to 'search for', 'look up', or 'find information about' something.",
+                          description = "Search the web for information. Use this only if the user explicitly asks to.",
                           parameters = list(
                             type = "object",
                             required = list("search_term"),  # function parameters
@@ -74,7 +85,7 @@ locModel_1 = "llama3.1"
 #locModel_2 = "qwen3-vl:4b"
 
 
-system_prompt = "Only use tools when explicitly asked or when the user's intent is unambiguous. Do not summarise. Keep it brief and conversate in a casual manner. Just plain text. No Emojis."
+system_prompt = "Do not use tools, only when explicitly asked to. Do not summarise. Keep it brief and conversate in a casual manner. Just plain text. No Emojis."
 initial_prompt = "Say hi and ask what you can help with."
 
 #--> start chat_log
@@ -100,28 +111,34 @@ user_input = get_user_input()
 if (is.null(user_input) || user_input == ""){user_input = "Nothing entered by user..."}
 
 messages = user_input |> append_message(role = "user", messages)
+messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
 chat_log = append(chat_log, c(paste(">>> User:", user_input, "\n")))
 
 
+if (!fun_tool_key_words(user_input)) {
+  cat("no explicit keyword for tool use found\n")
+} else {
+  cat("tool calling keyword found\n")
+}
+
+
 ai_resp = chat(locModel_1, messages, tools = tools_jne, output = "tools")
-
-
-# check if tool calling is ok
+# check if tool calling is ready else generate text
 if (length(ai_resp) > 0 && !is.null(ai_resp) && ai_resp != "") {
-  tool_call <- ai_resp[[1]]
+  tool_call = ai_resp[[1]]
   cat(sprintf("Calling tool: %s with arguments: %s\n",
               tool_call$name, toString(tool_call$arguments)))
-  tool_result <- do.call(tool_call$name, tool_call$arguments)
-  cat("Tool result:", tool_result, "\n")
-  messages <- append_message(paste("Tool result:", tool_result), "assistant", messages)
+  tool_result = do.call(tool_call$name, tool_call$arguments)
+  cat("Tool result:\n\n")
+  print(tool_result)
+  messages = append_message(paste("Tool result:", tool_result), "assistant", messages)
 } else {
-  print("nichts raus gekommen")
+  ai_resp = chat(locModel_1, messages, output = "text")
 }
 
 
 
 messages = append_message(ai_resp, role = "assistant", messages)
-
 messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
 chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 
@@ -152,10 +169,15 @@ while(TRUE) {
   messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
   chat_log = append(chat_log, c(paste(">>> User:", user_input, "\n")))
   
+  
+  
   messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
   messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
   chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
 }
+
+
+# initiate the end --------------------------------------------------------
 
 
 messages = "The conversation is over. Say good bye and ask no further questions." |> append_message(role = "user", messages)
