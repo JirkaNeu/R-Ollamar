@@ -19,8 +19,8 @@ if (check_path != path){
 }else{
   setwd(file.path(path, "data"))
   #allfiles = dir()
-  #print(allfiles)
 }
+rm(this_file, path, check_path)
 
 
 

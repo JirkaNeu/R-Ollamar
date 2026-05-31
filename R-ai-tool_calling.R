@@ -4,7 +4,7 @@ library(rstudioapi)
 library(ollamar)
 library(rvest)
 library(httr)
-library(httr2)
+#library(httr2)
 library(tcltk)
 
 
@@ -20,8 +20,9 @@ if (check_path != path){
 }else{
   setwd(file.path(path, "data"))
   #allfiles = dir()
-  #print(allfiles)
 }
+rm(this_file, path, check_path)
+
 
 
 # functions ---------------------------------------------------------------
@@ -62,7 +63,7 @@ check = generate("mistral:7b", "Who made you?", output = "text")
 
 # define tools ------------------------------------------------------------
 
-tool_web_search <- list(type = "function",
+tool_web_search = list(type = "function",
                         "function" = list(
                           name = "web_search",  # function name
                           description = "Search the web for information. Use this only if the user explicitly asks to.",
@@ -105,50 +106,6 @@ chat_log = append(chat_log, c(paste("\n>>> Ai says:", messages[[length(messages)
 
 
 
-# try web search ----------------------------------------------------------
-
-user_input = get_user_input()
-if (is.null(user_input) || user_input == ""){user_input = "Nothing entered by user..."}
-
-messages = user_input |> append_message(role = "user", messages)
-messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
-chat_log = append(chat_log, c(paste(">>> User:", user_input, "\n")))
-
-
-if (!fun_tool_key_words(user_input)) {
-  cat("no explicit keyword for tool use found\n")
-} else {
-  cat("tool calling keyword found\n")
-}
-
-
-ai_resp = chat(locModel_1, messages, tools = tools_jne, output = "tools")
-# check if tool calling is ready else generate text
-if (length(ai_resp) > 0 && !is.null(ai_resp) && ai_resp != "") {
-  tool_call = ai_resp[[1]]
-  cat(sprintf("Calling tool: %s with arguments: %s\n",
-              tool_call$name, toString(tool_call$arguments)))
-  tool_result = do.call(tool_call$name, tool_call$arguments)
-  cat("Tool result:\n\n")
-  print(tool_result)
-  messages = append_message(paste("Tool result:", tool_result), "assistant", messages)
-} else {
-  ai_resp = chat(locModel_1, messages, output = "text")
-}
-
-
-
-messages = append_message(ai_resp, role = "assistant", messages)
-messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
-chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
-
-
-stop("hang on")
-
-
-
-
-
 
 # chat loop ---------------------------------------------------------------
 
@@ -165,15 +122,46 @@ while(TRUE) {
   }
   
   if(stop_it == T || i >= 50){break}
+  
   messages = user_input |> append_message(role = "user", messages)
   messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
   chat_log = append(chat_log, c(paste(">>> User:", user_input, "\n")))
   
   
+  if (fun_tool_key_words(user_input)) {
+    cat("tool calling keyword found\n")
+    
+    ai_resp = chat(locModel_1, messages, tools = tools_jne, output = "tools")
+    #--> check if tool calling has results
+    if (length(ai_resp) > 0 && !is.null(ai_resp) && ai_resp != "") {
+      tool_call = ai_resp[[1]]
+      cat(sprintf("Calling tool: %s with arguments: %s\n",
+                  tool_call$name, toString(tool_call$arguments)))
+      tool_result = do.call(tool_call$name, tool_call$arguments)
+      cat("Tool result:\n\n")
+      print(tool_result)
+      
+      #--> httr error when adding result to messages list
+      #messages = append_message(paste("Tool result:", tool_result), "assistant", messages)
+      #--> add tool result to log file
+      chat_log = append(chat_log, c(paste("Tool result:", tool_result, "\n")))
+      
+    } else {
+      #--> when tool calling is without results generate text
+      messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
+      messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
+      chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
+    }
+    
+  } else {
+    cat("no explicit keyword for tool use found\n")
+    messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
+    messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
+    chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
+  }
   
-  messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
-  messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
-  chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
+  
+
 }
 
 
