@@ -32,7 +32,21 @@ source("../functions/fun_web_search.R")
 #source("../functions/fun_take_notes.R") #--> under construction
 
 fun_tool_key_words = function(user_input) {
-  search_keywords = c("search for", "look up", "find information about", "google", "search the web", "in the internet", "in the web", "suche nach", "suche im internet", "suche im netz", "finde im netz", "suche im web", "im internet", "im web", "im netz")
+
+
+tryCatch({
+  search_keywords = read.table("../functions/keywords_websearchxxx.txt", sep = "\n", stringsAsFactors = F, allowEscapes = F) |> unlist() |> as.vector()
+  },
+  error = function(e) {
+    search_keywords = c("search for", "look up", "google", "search the web", "on the internet", "in the web", "im internet", "im web", "im netz")
+    #return(search_keywords)
+    cat("Error: ", conditionMessage(e), "\n")
+  },
+  warning = function(w) {
+    cat("Warning: ", conditionMessage(w), "\n")
+  }
+  )
+  
   tolower_user_input = tolower(user_input) |> trimws()
   for (keyword in search_keywords) {
     if (grepl(keyword, tolower_user_input)) {
