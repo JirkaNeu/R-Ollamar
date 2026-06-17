@@ -33,18 +33,17 @@ source("../functions/fun_web_search.R")
 
 fun_tool_key_words = function(user_input) {
 
-
-tryCatch({
-  search_keywords = read.table("../functions/keywords_websearchxxx.txt", sep = "\n", stringsAsFactors = F, allowEscapes = F) |> unlist() |> as.vector()
-  },
-  error = function(e) {
-    search_keywords = c("search for", "look up", "google", "search the web", "on the internet", "in the web", "im internet", "im web", "im netz")
-    #return(search_keywords)
+  search_keywords = tryCatch({
+    search_keywords = read.table("../functions/keywords_websearch.txt", sep = "\n", stringsAsFactors = F, allowEscapes = F) |> unlist() |> as.vector()
+    },
+  error = function(e){
     cat("Error: ", conditionMessage(e), "\n")
-  },
-  warning = function(w) {
+    search_keywords = c("search for", "look up", "google", "search the web", "on the internet", "in the web", "im internet", "im web", "im netz")
+    },
+  warning = function(w){
     cat("Warning: ", conditionMessage(w), "\n")
-  }
+    search_keywords = c("search for", "look up", "google", "search the web", "on the internet", "in the web", "im internet", "im web", "im netz")
+    }
   )
   
   tolower_user_input = tolower(user_input) |> trimws()
@@ -54,6 +53,7 @@ tryCatch({
     }
   }
   return(FALSE)
+
 }
 
 
@@ -135,7 +135,7 @@ while(TRUE) {
     stop_it = T
   }
   
-  if(stop_it == T || i >= 50){break}
+  if(stop_it == T || i >= 2){break}
   
   messages = user_input |> append_message(role = "user", messages)
   messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
@@ -172,10 +172,9 @@ while(TRUE) {
     messages = chat(locModel_1, messages, output = "text") |> append_message(role = "assistant", messages)
     messages[[length(messages)]][2] |> unlist() |> cat(); cat("\n\n")
     chat_log = append(chat_log, c(paste(">>> Ai says:", messages[[length(messages)]][2] |> unlist(), "\n")))
-  }
+    }
   
   
-
 }
 
 
